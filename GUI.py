@@ -3,6 +3,11 @@ from tkinter import BOTH as tkboth
 import tkinter
 from PIL import Image , ImageTk
 import os
+from datetime import datetime
+
+
+TODAY = datetime.today()
+today_path = f'{TODAY.month}_{TODAY.day}'
 
 
 class App(object):
@@ -23,7 +28,8 @@ class App(object):
         self._entry.grid(row=0,column=0)
         # create a button
         self._button = ttk.Button(self._top,text =
-                                  "Click").grid(row=0,column=1,padx=10)
+                                  "Click",command = self.submit).grid(row=0,column=1,padx=10)
+        
 
         # create bottom framework
         self._down = ttk.Frame(root)
@@ -58,20 +64,50 @@ class App(object):
         '''
         # get the CODE
         CODE = self._code.get()
-        if not CODE:
+        if CODE:
 
             #send_message(CODE)
-            self.updata_image()
+            # time.sleep(5)
+            ## want to determine whether the image recieved
+            for file_name in os.listdir(today_path):
+                if CODE in file_name:
+
+                    self.updata_image(file_name)
 
 
 
-    def updata_image(self):
+    def updata_image(self,file_name):
         '''
         1. make sure the dir is not empty.
         2. pick the correct image from the dir and paste it on the right side
         '''
-        pass
+        
+        if "successfully" in file_name:
+            file_name = os.path.join(today_path,file_name)
 
+            #Load an image in the script
+            img= Image.open(file_name)
+
+            #Resize the Image using resize method
+            resized_image= img.resize((500,500), Image.ANTIALIAS)
+            new_image= ImageTk.PhotoImage(resized_image)
+
+            ## put it up to the _Can2
+            self._Can2.create_image(0,0, anchor=tkinter.NW, image = new_image)
+            self._Can2.image = new_image
+
+        elif "unfortunately" in file_name:
+            file_name = os.path.join(today_path,file_name)
+            #Load an image in the script
+            img= Image.open(file_name)
+
+            #Resize the Image using resize method
+            resized_image= img.resize((500,500), Image.ANTIALIAS)
+            new_image= ImageTk.PhotoImage(resized_image)
+
+            ## put it up to the _Can2
+            self._Can1.create_image(0,0, anchor=tkinter.NW, image = new_image)
+            self._Can1.image = new_image
 
 
     def clear(self):
@@ -82,5 +118,9 @@ class App(object):
 
 
 if __name__ == '__main__':
+    # create the dir once we run the program
+    # os.mkdir(today_path)
 
     application = App()
+
+    # os.remove(today_path)
