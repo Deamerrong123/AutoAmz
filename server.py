@@ -5,6 +5,8 @@ Modified by: Qizhao Rong
 
 import socket
 import time
+import GUI
+import threading
 
 
 HEADERSIZE = 10
@@ -13,8 +15,15 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((socket.gethostname(), 9998))
 s.listen(5)
 
+Win = threading.Thread(target = GUI.App)
+Win.start()
+
 while True:
     # now our endpoint knows about the OTHER endpoint.
+
+
+    print("Waiting for Connection !!!")
+
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established.")
 
