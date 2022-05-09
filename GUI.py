@@ -39,6 +39,28 @@ class App(object):
         # Once GUI window working, we can conncet to the ONLY Client
         self.Client, self.address = self.conncet()
 
+   def conncet(self):
+        try:
+            # we only need to connect to one device
+            clientsocket, address = self.server.accept()
+            self.Clients.append(clientsocket)
+            ## once we connceted to a client, will print..
+            print(f"Connection from {address} has been established.")
+
+            # send a message to client.
+            msg = "Welcome to the server!"
+            msg = f"{len(msg):<{HEADERSIZE}}"+msg ## this is the header
+
+            clientsocket.send(bytes(msg,"utf-8"))
+
+
+        except:
+            self.server.close()
+            self.root.destroy()
+            sys.exit()
+
+        return clientsocket, address
+
 
         
 
@@ -88,25 +110,7 @@ class App(object):
         self.root.mainloop()
 
 
-    def conncet(self):
-        try:
-            # we only need to connect to one device
-            clientsocket, address = self.server.accept()
-            self.Clients.append(clientsocket)
-            ## once we connceted to a client, will print..
-            print(f"Connection from {address} has been established.")
-
-            # send a message to client.
-            msg = "Welcome to the server!"
-            msg = f"{len(msg):<{HEADERSIZE}}"+msg
-
-            clientsocket.send(bytes(msg,"utf-8"))
-        except:
-            self.server.close()
-            self.root.destroy()
-            sys.exit()
-
-        return clientsocket, address
+ 
 
     def stop(self):
         self.running = False
@@ -134,9 +138,9 @@ class App(object):
                 return False
 
             while True:
-                msg = CliendSock.recv(1024).decode('utf-8')
+                msg = CliendSock.recv(1024)
 
-                if msg == "DONE":
+                if msg == b'DONE':
                     file_name = CliendSock.recv(2048).decode('utf-8')
                     file_stream = io.BytesIO()
                     recv_data = CliendSock.recv(BUFFER_SIZE)
@@ -155,7 +159,11 @@ class App(object):
         except:
 
             print("ERROR -> recieve_message")
+            return False
             sys.exit()
+
+        return True
+
 
 
 
@@ -172,13 +180,12 @@ class App(object):
         CODE = self._code.get()
         if len(CODE) > 8:
 
-            self.handle_message(self.Client,CODE)
-            # time.sleep(5)
-            ## want to determine whether the image recieved
-            for file_name in os.listdir(today_path):
-                if CODE in file_name:
-
-                    self.updata_image(file_name)
+            if self.handle_message(self.Client,CODE):
+                # time.sleep(5)
+                # once handle_message is COMPLETE, the desired png should be appear.
+                for file_name in os.listdir(today_path):
+                    if CODE in file_name:
+                        self.updata_image(file_name)
 
 
 

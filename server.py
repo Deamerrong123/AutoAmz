@@ -21,7 +21,6 @@ Win.start()
 while True:
     # now our endpoint knows about the OTHER endpoint.
 
-
     print("Waiting for Connection !!!")
 
     clientsocket, address = s.accept()

@@ -1,64 +1,55 @@
+'''
+REFERENCE CODE: https://pythonprogramming.net/server-chatroom-sockets-tutorial-python-3/
+Modified by: Qizhao Rong
+'''
+
 import socket
 import select
 import errno
 
+## CONSTANT
 HEADER_LENGTH = 10
-
+BUFFER_SIZE = 4096
 IP = socket.gethostname()
 PORT = 9998
-my_username = input("Username: ")
+
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-
 client_socket.connect((IP, PORT))
-
-
 client_socket.setblocking(False)
 
-# Prepare username and header and send them
-# We need to encode username to bytes, then count number of bytes and prepare header of fixed size, that we encode to bytes as well
-username = my_username.encode('utf-8')
-username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
-client_socket.send(username_header + username)
+''''''
+def uploading_PNG(client,code):
+    pass
+
+
+
+''''''
+
+first_conn = client_socket.recv(1024).decode('utf-8')
+if first_conn:
+    print(first_conn)
 
 while True:
-
-    # Wait for user to input a message
-    message = input(f'{my_username} > ')
-
-    # If message is not empty - send it
-    if message:
-
-        # Encode message to bytes, prepare header and convert to bytes, like for username above, then send
-        message = message.encode('utf-8')
-        message_header = f"{len(message):<{HEADER_LENGTH}}".encode('utf-8')
-        client_socket.send(message_header + message)
 
     try:
         # Now we want to loop over received messages (there might be more than one) and print them
         while True:
 
-            # Receive our "header" containing username length, it's size is defined and constant
-            username_header = client_socket.recv(HEADER_LENGTH)
+            ## handle message(CODE) recieve from server
+            CODE = client_socket.recv(1024)
+            if not CODE:
+                continue
+            else:
+                # once we have the CODE.
+                print(CODE.decode('utf-8'))
+                # then working on AutoAmz.
+                #
+                # once it is done.
+                client_socket.send(b'DONE')
+                uploading_PNG(client_socket,CODE)
+                client_socket.send(b'IMAGE_COMPLETE')
 
-            # If we received no data, server gracefully closed a connection, for example using socket.close() or socket.shutdown(socket.SHUT_RDWR)
-            if not len(username_header):
-                print('Connection closed by the server')
-                sys.exit()
 
-            # Convert header to int value
-            username_length = int(username_header.decode('utf-8').strip())
-
-            # Receive and decode username
-            username = client_socket.recv(username_length).decode('utf-8')
-
-            # Now do the same for message (as we received username, we received whole message, there's no need to check if it has any length)
-            message_header = client_socket.recv(HEADER_LENGTH)
-            message_length = int(message_header.decode('utf-8').strip())
-            message = client_socket.recv(message_length).decode('utf-8')
-
-            # Print message
-            print(f'{username} > {message}')
 
     except IOError as e:
         # This is normal on non blocking connections - when there are no incoming data error is going to be raised
