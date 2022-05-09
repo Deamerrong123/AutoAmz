@@ -118,9 +118,4 @@ class App(object):
 
 
 if __name__ == '__main__':
-    # create the dir once we run the program
-    # os.mkdir(today_path)
-
     application = App()
-
-    # os.remove(today_path)
