@@ -5,8 +5,8 @@ import errno
 HEADER_LENGTH = 10
 
 IP = socket.gethostname()
-PORT = 1244
-# my_username = input("Username: ")
+PORT = 9998
+my_username = input("Username: ")
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 

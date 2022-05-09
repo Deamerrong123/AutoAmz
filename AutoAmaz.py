@@ -12,7 +12,7 @@ from time import sleep,time
 import os
 
 URL = 'https://www.amazon.com/'
-FILE = os.getcwd() + '\\login.json'
+FILE = os.path.join(os.getcwd(),'LOGIN.json')
 
 def load_login_info():
     f = open(FILE,'r')
@@ -62,13 +62,6 @@ def Gift_card(driver,code):
 
 if __name__ == '__main__':
 
-##    PATH = os.getcwd() + '\\chromedriver.exe'
-##    chrome_options = Options()
-##    chrome_options.add_argument("--headless")
-##    chrome_options.add_argument("--window-size=1920x1080")
-##    chrome_driver = os.getcwd()+'\\chromedriver.exe'
-
-##    browser = webdriver.Chrome('{}/chromedriver.exe'.format(os.getcwd()))
     driver = webdriver.Edge()
     driver.implicitly_wait(1)
     driver.get(URL)
