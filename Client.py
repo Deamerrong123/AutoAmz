@@ -6,6 +6,9 @@ Modified by: Qizhao Rong
 import socket
 import select
 import errno
+from datetime import datetime
+import os
+import sys
 
 ## CONSTANT
 HEADER_LENGTH = 10
@@ -15,19 +18,42 @@ PORT = 9998
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((IP, PORT))
-client_socket.setblocking(False)
+##client_socket.setblocking(False)
+
+TODAY = datetime.today()
+today_path = f'Client_{TODAY.month}_{TODAY.day}'
+if not os.path.isdir(today_path):
+    os.mkdir(today_path)
 
 ''''''
 def uploading_PNG(client,code):
-    pass
+    '''
+    1. locate the file_name contain the code
+    2. send the file_name first
+    3. send the file(.png).
+    '''
+    for file_name in os.listdir(today_path):
+        if code in file_name:
+            file = os.path.join(today_path,file_name)
+            print(file_name)
+            client.send(bytes(file_name,'utf-8')) # send the file_name first
+            # then packing the file into bytes and sent.
+            with open(file,'rb') as f:
+                file_data = f.read(BUFFER_SIZE)
 
+                while file_data:
+                    client.send(file_data)
+                    file_data = f.read(BUFFER_SIZE)
+            
+            return True
 
-
+        client.send(bytes('error','utf-8'))
+        return False
 ''''''
 
-first_conn = client_socket.recv(1024).decode('utf-8')
+first_conn = client_socket.recv(1024)
 if first_conn:
-    print(first_conn)
+    print(first_conn.decode('utf-8'))
 
 while True:
 
@@ -41,13 +67,15 @@ while True:
                 continue
             else:
                 # once we have the CODE.
-                print(CODE.decode('utf-8'))
+                CODE = CODE.decode('utf-8')
+                print(CODE)
                 # then working on AutoAmz.
-                #
+                # sleep(3)
                 # once it is done.
-                client_socket.send(b'DONE')
+                client_socket.send(b'%DONE%')
                 uploading_PNG(client_socket,CODE)
-                client_socket.send(b'IMAGE_COMPLETE')
+                client_socket.send(b'%IMAGE_COMPLETE%')
+                
 
 
 
@@ -57,13 +85,13 @@ while True:
         # We are going to check for both - if one of them - that's expected, means no incoming data, continue as normal
         # If we got different error code - something happened
         if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-            print('Reading error: {}'.format(str(e)))
+            print('Reading error : {}'.format(str(e)))
             sys.exit()
 
         # We just did not receive anything
         continue
 
-    except Exception as e:
-        # Any other exception - something happened, exit
-        print('Reading error: '.format(str(e)))
-        sys.exit()
+    # except Exception as e:
+    #     # Any other exception - something happened, exit
+    #     print('Reading error: '.format(str(e)))
+    #     sys.exit()

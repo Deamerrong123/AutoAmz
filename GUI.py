@@ -14,9 +14,13 @@ import io
 
 ## CONSTANT
 TODAY = datetime.today()
-today_path = f'{TODAY.month}_{TODAY.day}'
+today_path = f'server_{TODAY.month}_{TODAY.day}'
 HEADERSIZE = 10
 BUFFER_SIZE = 4096
+
+
+if not os.path.isdir(today_path):
+    os.mkdir(today_path)
 
 
 class App(object):
@@ -25,44 +29,44 @@ class App(object):
         ## handel for the server
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((socket.gethostname(), 9998)) # connect to local host
-        self.server.listen(1)
+        self.server.listen()
         self.clients = []
 
         # bool obj
         self.Gui_done = False
         self.running = True
+        self.recieve_mode = False
 
         # thread for handeling GUI
         self.Gui_thread = threading.Thread(target = self.Gui,args = ())
         self.Gui_thread.start()
 
-        # Once GUI window working, we can conncet to the ONLY Client
-        self.Client, self.address = self.conncet()
 
-   def conncet(self):
+        # Once GUI window working, we can conncet to the ONLY Client
+        self.Client, _ = self.conncet()
+
+        # Once they host the connection, start a thread for handling
+        # reciving message.
+        self.Recieving = threading.Thread(target = self.recieve_message,args=(self.Client,))
+        self.Recieving.start()
+
+    def conncet(self):
         try:
             # we only need to connect to one device
             clientsocket, address = self.server.accept()
-            self.Clients.append(clientsocket)
-            ## once we connceted to a client, will print..
-            print(f"Connection from {address} has been established.")
-
-            # send a message to client.
+            self.clients.append(clientsocket)
             msg = "Welcome to the server!"
-            msg = f"{len(msg):<{HEADERSIZE}}"+msg ## this is the header
-
+            msg = f"{len(msg):<{HEADERSIZE}}"+msg
+           
             clientsocket.send(bytes(msg,"utf-8"))
 
+        except Exception as e:
+            # self.server.close()
+            # # self.root.destroy()
+            # sys.exit()
+            print(str(e))
 
-        except:
-            self.server.close()
-            self.root.destroy()
-            sys.exit()
-
-        return clientsocket, address
-
-
-        
+        return clientsocket, address        
 
     def Gui(self):
 
@@ -77,11 +81,11 @@ class App(object):
         self._code = StringVar()
         self._code.set("Enter code here !")
         self._entry = ttk.Entry(self._top,textvariable = self._code,width = 50,
-                                font=('calibre',20,'normal'))
+                                font=('calibre',20,'normal'),justify=tkinter.CENTER)
         self._entry.grid(row=0,column=0)
         # create a button
         self._button = ttk.Button(self._top,text =
-                                  "Click",command = self.submit).grid(row=0,column=1,padx=10)
+                                  "Submit",command = self.submit).grid(row=0,column=1,padx=10)
         
 
         # create bottom framework
@@ -108,8 +112,6 @@ class App(object):
         
         
         self.root.mainloop()
-
-
  
 
     def stop(self):
@@ -124,51 +126,52 @@ class App(object):
         msg = bytes(_text,'utf-8')
         # be careful about disconnection
         try:
-            if CliendSock not in self.clients:
-                return False
-            clientsocket.send(msg)
+            CliendSock.send(msg)
+            self.running = True
 
         except:
             print("ERROR -> handle_message")
             exit(1)
 
     def recieve_message(self,CliendSock):
-        try:
-            if CliendSock not in self.clients:
-                return False
+            while self.running:
+                try:
+                    msg = CliendSock.recv(1024)
+                    print(msg.decode('utf-8\n\n'))
 
-            while True:
-                msg = CliendSock.recv(1024)
+                    if msg == b'%DONE%':
+                        print("Start reciving image... \n")
+                        file_name = CliendSock.recv(1024)
+                        file_name = file_name.decode('utf-8')
+                        # print(file_name)
 
-                if msg == b'DONE':
-                    file_name = CliendSock.recv(2048).decode('utf-8')
-                    file_stream = io.BytesIO()
-                    recv_data = CliendSock.recv(BUFFER_SIZE)
+                        if file_name != 'error':
 
-                    while recv_data:
-                        file_stream.write(recv_data)
-                        recv_data = CliendSock.recv(BUFFER_SIZE)
+                            file_stream = io.BytesIO()
+                            recv_data = CliendSock.recv(BUFFER_SIZE)
 
-                        if recv_data == b'IMAGE_COMPLETE':
-                            break # exit the 'inner' while loop
+                            while recv_data:
+                                file_stream.write(recv_data)
+                                recv_data = CliendSock.recv(BUFFER_SIZE)
 
-                    img = Image.open(file_stream)
-                    img.save(file_name, format ='PNG')
-                    # once we recieve the complete image.
-                    break # exit the 'outter' while loop
-        except:
+                                if recv_data == b'%IMAGE_COMPLETE%':
+                                    
+                                    break # exit the 'inner' while loop
 
-            print("ERROR -> recieve_message")
-            return False
-            sys.exit()
+                            img = Image.open(file_stream)
+                            file_name = os.path.join(today_path,file_name)
+                            img.save(file_name, format ='PNG')
+                        print("Image Complete\n")
 
-        return True
+                        # once we recieve the complete image.
+                        # self.running = False                    
+                        # break # exit the 'outter' while loop
+                except Exception as e:
 
+                    print("ERROR -> recieve_message")
+                    print(f'{str(e)}')
 
-
-
-
-
+            return True
 
     def submit(self):
         '''
@@ -178,14 +181,15 @@ class App(object):
         '''
         # get the CODE
         CODE = self._code.get()
-        if len(CODE) > 8:
+        if len(CODE) > 4:
 
             if self.handle_message(self.Client,CODE):
                 # time.sleep(5)
                 # once handle_message is COMPLETE, the desired png should be appear.
-                for file_name in os.listdir(today_path):
-                    if CODE in file_name:
-                        self.updata_image(file_name)
+                # for file_name in os.listdir(today_path):
+                #     if CODE in file_name:
+                #         self.updata_image(file_name)
+                pass
 
 
 
@@ -209,7 +213,7 @@ class App(object):
             self._Can2.create_image(0,0, anchor=tkinter.NW, image = new_image)
             self._Can2.image = new_image
 
-        elif "unfortunately" in file_name:
+        else:
             file_name = os.path.join(today_path,file_name)
             #Load an image in the script
             img= Image.open(file_name)

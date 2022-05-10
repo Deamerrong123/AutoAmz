@@ -62,6 +62,7 @@ def Gift_card(driver,code):
 
 if __name__ == '__main__':
 
+
     driver = webdriver.Edge()
     driver.implicitly_wait(1)
     driver.get(URL)

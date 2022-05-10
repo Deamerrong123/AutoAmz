@@ -1,15 +1,29 @@
-import json
+import socket
 
-with open("login.json",'w') as f:
-    personal_info = {
-        'email' : 'deamerrong123@gmail.com',
-        'passward' : '1520QZrong'
-        }
+HEADERSIZE = 10
 
-    json.dump(personal_info,f)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((socket.gethostname(), 9998))
 
-##f = open("login.json",'r')
-##data = json.load(f)
-##f.close()
-##
-##print(data)
+while True:
+    full_msg = ''
+    new_msg = True
+    while True:
+        msg = s.recv(16)
+        if new_msg:
+            print("new msg len:",msg[:HEADERSIZE])
+            msglen = int(msg[:HEADERSIZE])
+            new_msg = False
+
+        print(f"full message length: {msglen}")
+
+        full_msg += msg.decode("utf-8")
+
+        print(len(full_msg))
+
+
+        if len(full_msg)-HEADERSIZE == msglen:
+            print("full msg recvd")
+            print(full_msg[HEADERSIZE:])
+            new_msg = True
+            full_msg = ""
