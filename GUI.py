@@ -28,7 +28,7 @@ class App(object):
     def __init__(self):
         ## handel for the server
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind((socket.gethostname(), 9998)) # connect to local host
+        self.server.bind(("localhost", 9998)) # connect to localhost
         self.server.listen()
         self.clients = []
 

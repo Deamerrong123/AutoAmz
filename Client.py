@@ -13,8 +13,9 @@ import sys
 ## CONSTANT
 HEADER_LENGTH = 10
 BUFFER_SIZE = 4096
-IP = socket.gethostname()
-PORT = 9998
+IP = "0.tcp.ngrok.io"
+PORT = 15867
+
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((IP, PORT))
