@@ -4,7 +4,6 @@ Modified by: Qizhao Rong
 '''
 
 import socket
-import select
 import errno
 from datetime import datetime
 import os
@@ -13,20 +12,26 @@ import sys
 ## CONSTANT
 HEADER_LENGTH = 10
 BUFFER_SIZE = 4096
-IP = "0.tcp.ngrok.io"
-PORT = 15867
+
+# Once the server hosting using ngrok, we need the
+# ip address and the port. 
+IP = input("Enter the TCP IP address: ")
+PORT = int(input("Enter the PORT number: "))
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((IP, PORT))
 ##client_socket.setblocking(False)
 
+# Create the working dir for TODAY CLIENT
 TODAY = datetime.today()
 today_path = f'Client_{TODAY.month}_{TODAY.day}'
 if not os.path.isdir(today_path):
     os.mkdir(today_path)
 
-''''''
+''' def functions on below;
+'''
+
 def uploading_PNG(client,code):
     '''
     1. locate the file_name contain the code
@@ -45,9 +50,13 @@ def uploading_PNG(client,code):
                 while file_data:
                     client.send(file_data)
                     file_data = f.read(BUFFER_SIZE)
-            
+            # once the image been successully transmited, we tell the 
+            # server it is done.
+            client_socket.send(b'%IMAGE_COMPLETE%')
+
             return True
 
+        # if we cannot locate the file, tell the server and stop sending.
         client.send(bytes('error','utf-8'))
         return False
 ''''''
@@ -75,9 +84,6 @@ while True:
                 # once it is done.
                 client_socket.send(b'%DONE%')
                 uploading_PNG(client_socket,CODE)
-                client_socket.send(b'%IMAGE_COMPLETE%')
-                
-
 
 
     except IOError as e:

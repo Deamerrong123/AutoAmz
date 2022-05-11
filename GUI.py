@@ -57,7 +57,6 @@ class App(object):
             self.clients.append(clientsocket)
             msg = "Welcome to the server!"
             msg = f"{len(msg):<{HEADERSIZE}}"+msg
-           
             clientsocket.send(bytes(msg,"utf-8"))
 
         except Exception as e:
@@ -66,7 +65,7 @@ class App(object):
             # sys.exit()
             print(str(e))
 
-        return clientsocket, address        
+        return clientsocket , address
 
     def Gui(self):
 
@@ -104,15 +103,13 @@ class App(object):
         
         self._Can2 = Canvas(r_win,width = 500,height=500)
         self._Can2.configure(bg = 'white')
-        self._Can2.pack()        
+        self._Can2.pack()
 
 
         self.Gui_done = True
         self.root.protocol("WM_DELETE_WINDOW",self.stop)
         
-        
         self.root.mainloop()
- 
 
     def stop(self):
         self.running = False
@@ -143,7 +140,6 @@ class App(object):
                         print("Start reciving image... \n")
                         file_name = CliendSock.recv(1024)
                         file_name = file_name.decode('utf-8')
-                        # print(file_name)
 
                         if file_name != 'error':
 
@@ -155,7 +151,6 @@ class App(object):
                                 recv_data = CliendSock.recv(BUFFER_SIZE)
 
                                 if recv_data == b'%IMAGE_COMPLETE%':
-                                    
                                     break # exit the 'inner' while loop
 
                             img = Image.open(file_stream)
@@ -163,11 +158,7 @@ class App(object):
                             img.save(file_name, format ='PNG')
                         print("Image Complete\n")
 
-                        # once we recieve the complete image.
-                        # self.running = False                    
-                        # break # exit the 'outter' while loop
                 except Exception as e:
-
                     print("ERROR -> recieve_message")
                     print(f'{str(e)}')
 
