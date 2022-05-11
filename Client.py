@@ -15,7 +15,7 @@ BUFFER_SIZE = 4096
 
 # Once the server hosting using ngrok, we need the
 # ip address and the port. 
-IP = input("Enter the TCP IP address: ")
+IP = str(input("Enter the TCP IP address: "))
 PORT = int(input("Enter the PORT number: "))
 
 

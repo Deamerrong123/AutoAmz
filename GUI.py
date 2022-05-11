@@ -30,31 +30,26 @@ class App(object):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(("localhost", 9998)) # connect to localhost
         self.server.listen()
-        self.clients = []
+        self.Clients = []
 
         # bool obj
         self.Gui_done = False
         self.running = True
         self.recieve_mode = False
 
-        # thread for handeling GUI
-        self.Gui_thread = threading.Thread(target = self.Gui,args = ())
-        self.Gui_thread.start()
+
+        self.Gui()
 
 
-        # Once GUI window working, we can conncet to the ONLY Client
-        self.Client, _ = self.conncet()
-
-        # Once they host the connection, start a thread for handling
-        # reciving message.
-        self.Recieving = threading.Thread(target = self.recieve_message,args=(self.Client,))
-        self.Recieving.start()
 
     def conncet(self):
+        print("We are seeking for connection with THIS Server")
         try:
             # we only need to connect to one device
             clientsocket, address = self.server.accept()
-            self.clients.append(clientsocket)
+            self.Clients.append(clientsocket)
+            print(f'We have connect to {address}.')
+
             msg = "Welcome to the server!"
             msg = f"{len(msg):<{HEADERSIZE}}"+msg
             clientsocket.send(bytes(msg,"utf-8"))
@@ -65,12 +60,11 @@ class App(object):
             # sys.exit()
             print(str(e))
 
-        return clientsocket , address
 
     def Gui(self):
 
         self.root = Tk() # root window
-        self.root.geometry("1040x600")
+        self.root.geometry("1040x610")
 
         # create first frame, and attach on the the top root win
         self._top = ttk.Frame(self.root,padding = '5 5 5 10')
@@ -79,13 +73,13 @@ class App(object):
         # create a text Entry on the top and stand on the middle
         self._code = StringVar()
         self._code.set("Enter code here !")
+        self.ref_btn = ttk.Button(self._top,text = "Connect",command = self.conncet).grid(row = 0,column= 0,padx = 10)
         self._entry = ttk.Entry(self._top,textvariable = self._code,width = 50,
                                 font=('calibre',20,'normal'),justify=tkinter.CENTER)
-        self._entry.grid(row=0,column=0)
+        self._entry.grid(row=0,column=1)
         # create a button
         self._button = ttk.Button(self._top,text =
-                                  "Submit",command = self.submit).grid(row=0,column=1,padx=10)
-        
+                                  "Submit",command = self.submit).grid(row=0,column=2,padx=10)
 
         # create bottom framework
         self._down = ttk.Frame(self.root)
@@ -100,15 +94,14 @@ class App(object):
         self._Can1 = Canvas(l_win,width = 500,height = 500)
         self._Can1.configure(bg = 'white')
         self._Can1.pack()
-        
+
         self._Can2 = Canvas(r_win,width = 500,height=500)
         self._Can2.configure(bg = 'white')
         self._Can2.pack()
 
-
         self.Gui_done = True
         self.root.protocol("WM_DELETE_WINDOW",self.stop)
-        
+
         self.root.mainloop()
 
     def stop(self):
@@ -125,6 +118,10 @@ class App(object):
         try:
             CliendSock.send(msg)
             self.running = True
+            # Once they host the connection, start a thread for handling
+            # reciving message.
+            self.Recieving = threading.Thread(target = self.recieve_message,args=(CliendSock,))
+            self.Recieving.start()
 
         except:
             print("ERROR -> handle_message")
@@ -157,10 +154,12 @@ class App(object):
                             file_name = os.path.join(today_path,file_name)
                             img.save(file_name, format ='PNG')
                         print("Image Complete\n")
+                        self.running = False # kill this thread (reciving)
 
                 except Exception as e:
                     print("ERROR -> recieve_message")
                     print(f'{str(e)}')
+                    self.running = False
 
             return True
 
@@ -174,7 +173,8 @@ class App(object):
         CODE = self._code.get()
         if len(CODE) > 4:
 
-            if self.handle_message(self.Client,CODE):
+            Client = self.Clients[-1]
+            if self.handle_message(Client,CODE):
                 # time.sleep(5)
                 # once handle_message is COMPLETE, the desired png should be appear.
                 # for file_name in os.listdir(today_path):
