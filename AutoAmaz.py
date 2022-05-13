@@ -82,6 +82,15 @@ if __name__ == '__main__':
     # Then, redeem
     driver.find_element(By.PARTIAL_LINK_TEXT,"redeem").click()
 
+    # once we get the code, paste on the Entry bar.
+    # and Click "Apply"
+    ## 
+    ##
+
+    # When 'id = alertRedemptionSuccess' appear, clip 'class = a-alert-heading'
+    # and driver.save_screenshot()
+
+
 
 
 
