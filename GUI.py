@@ -120,7 +120,8 @@ class App(object):
             self.running = True
             # Once they host the connection, start a thread for handling
             # reciving message.
-            self.Recieving = threading.Thread(target = self.recieve_message,args=(CliendSock,))
+            self.Recieving = threading.Thread(target = self.recieve_message,
+                                              args=(CliendSock,))
             self.Recieving.start()
 
         except:
