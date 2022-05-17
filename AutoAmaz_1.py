@@ -70,9 +70,9 @@ class AutoAmaz(object):
 
         def redeem_gift_card(self,code):
             '''
-            while we are on the redeem-gift-card page;
-            locate the claim_code field, paster the code on the input-field;
-            and 
+            while we are on the redeem-gift-card page; locate the claim_code field, paste
+            the code on the input-field. The page might be not so stable will need to login again.
+            Once exceptions occurs, attaim to login.
             '''
             try:
                 claim_code = self.driver.find_element(By.NAME,'claimCode')
@@ -84,6 +84,9 @@ class AutoAmaz(object):
                 # and driver.save_screenshot()
             except NoSuchElementException:
                 self.login_page()
+
+            finally:
+                self.driver.save_screenshot(f'{code}.png')
 
 
 
