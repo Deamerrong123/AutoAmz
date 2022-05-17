@@ -24,7 +24,7 @@ def login_info():
 ## Obj class
 class AutoAmaz(object):
 
-    def init(self):
+    def __init__ (self):
         self.driver = webdriver.Edge(DRIVER_PATH)
         self.wait = WebDriverWait(self.driver,300)
         self.driver.implicitly_wait(6)
@@ -42,15 +42,8 @@ class AutoAmaz(object):
         self.driver.find_element(By.PARTIAL_LINK_TEXT,"balance").click()
 
         # Then, redeem
-        self.driver.find_element(By.PARTIAL_LINK_TEXT,"redeem").click()
+        self.driver.find_element(By.LINK_TEXT,"Redeem a Gift Card").click()
 
-        # once we get the code, paste on the Entry bar.
-        # and Click "Apply"
-        ## 
-        ##
-
-        # When 'id = alertRedemptionSuccess' appear, clip 'class = a-alert-heading'
-        # and driver.save_screenshot()
     def login_page(self):
         # we need to deal with the situation
         # once we naviated to login-page
@@ -73,8 +66,28 @@ class AutoAmaz(object):
         except NoSuchElementException:
             print("We are not at login-page.")
 
-            return None
+            return False
 
+        def redeem_gift_card(self,code):
+            '''
+            while we are on the redeem-gift-card page;
+            locate the claim_code field, paster the code on the input-field;
+            and 
+            '''
+            try:
+                claim_code = self.driver.find_element(By.NAME,'claimCode')
+                # paste the code on the redemption-input, and apply.
+                claim_code.send_keys(code,Keys.ENTER)
+
+
+                # When 'id = alertRedemptionSuccess' appear, clip 'class = a-alert-heading'
+                # and driver.save_screenshot()
+            except NoSuchElementException:
+                self.login_page()
+
+
+
+## for testing
 if __name__ == '__main__':
     acc = AutoAmaz()
 
