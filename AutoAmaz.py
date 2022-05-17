@@ -4,7 +4,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.chrome.options import Options
 from time import sleep,time
@@ -18,7 +18,6 @@ def load_login_info():
     f = open(FILE,'r')
     info = json.load(f)
     return info['email'] , info['passward']
-    
 
 def login_page(driver):
     # we need to deal with the situation
@@ -69,7 +68,6 @@ if __name__ == '__main__':
 
     # activate the log-in page
     driver.find_element(By.XPATH'//*[@id="nav-link-accountList"]/span').click()
-    
 
     login_page(driver)
 
