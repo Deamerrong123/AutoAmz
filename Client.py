@@ -8,26 +8,17 @@ import errno
 from datetime import datetime
 import os
 import sys
+import AutoAmaz
 
 ## CONSTANT
 HEADER_LENGTH = 10
 BUFFER_SIZE = 4096
 
-# Once the server hosting using ngrok, we need the
-# ip address and the port. 
-IP = str(input("Enter the TCP IP address: "))
-PORT = int(input("Enter the PORT number: "))
-
-
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect((IP, PORT))
-##client_socket.setblocking(False)
-
 # Create the working dir for TODAY CLIENT
 TODAY = datetime.today()
-today_path = f'Client_{TODAY.month}_{TODAY.day}'
-if not os.path.isdir(today_path):
-    os.mkdir(today_path)
+TODAY_PATH = f'Client_{TODAY.month}_{TODAY.day}'
+if not os.path.isdir(TODAY_PATH):
+    os.mkdir(TODAY_PATH)
 
 ''' def functions on below;
 '''
@@ -38,9 +29,9 @@ def uploading_PNG(client,code):
     2. send the file_name first
     3. send the file(.png).
     '''
-    for file_name in os.listdir(today_path):
+    for file_name in os.listdir(TODAY_PATH):
         if code in file_name:
-            file = os.path.join(today_path,file_name)
+            file = os.path.join(TODAY_PATH,file_name)
             print(file_name)
             client.send(bytes(file_name,'utf-8')) # send the file_name first
             # then packing the file into bytes and sent.
@@ -62,10 +53,27 @@ def uploading_PNG(client,code):
 ''''''
 
 if __name__ == '__main__':
+
+    # Once the server hosting using ngrok, we need the
+    # ip address and the port. 
+    IP = str(input("Enter the TCP IP address: "))
+    PORT = int(input("Enter the PORT number: "))
+
+    ## Turn on the driver for Amaz,
+    driver = AutoAmaz.AutoAmaz()
+
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((IP, PORT))
+    ##client_socket.setblocking(False)
+
+
+    # want to make sure we are conncet to the server!
     first_conn = client_socket.recv(1024)
     if first_conn:
         print(first_conn.decode('utf-8'))
 
+    # below is dealing with recieving code from SERVER, send the code to driver on Amaz,
+    # clip screenshot and send this PNG file back to SERVER.
     while True:
 
         try:
@@ -81,7 +89,7 @@ if __name__ == '__main__':
                     CODE = CODE.decode('utf-8')
                     print(CODE)
                     # then working on AutoAmz.
-                    # sleep(3)
+                    driver.redeem_gift_card(CODE,TODAY_PATH)
                     # once it is done.
                     client_socket.send(b'%DONE%')
                     uploading_PNG(client_socket,CODE)
