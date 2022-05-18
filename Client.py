@@ -61,44 +61,45 @@ def uploading_PNG(client,code):
         return False
 ''''''
 
-first_conn = client_socket.recv(1024)
-if first_conn:
-    print(first_conn.decode('utf-8'))
+if __name__ == '__main__':
+    first_conn = client_socket.recv(1024)
+    if first_conn:
+        print(first_conn.decode('utf-8'))
 
-while True:
+    while True:
 
-    try:
-        # Now we want to loop over received messages (there might be more than one) and print them
-        while True:
+        try:
+            # Now we want to loop over received messages (there might be more than one) and print them
+            while True:
 
-            ## handle message(CODE) recieve from server
-            CODE = client_socket.recv(1024)
-            if not CODE:
-                continue
-            else:
-                # once we have the CODE.
-                CODE = CODE.decode('utf-8')
-                print(CODE)
-                # then working on AutoAmz.
-                # sleep(3)
-                # once it is done.
-                client_socket.send(b'%DONE%')
-                uploading_PNG(client_socket,CODE)
+                ## handle message(CODE) recieve from server
+                CODE = client_socket.recv(1024)
+                if not CODE:
+                    continue
+                else:
+                    # once we have the CODE.
+                    CODE = CODE.decode('utf-8')
+                    print(CODE)
+                    # then working on AutoAmz.
+                    # sleep(3)
+                    # once it is done.
+                    client_socket.send(b'%DONE%')
+                    uploading_PNG(client_socket,CODE)
 
 
-    except IOError as e:
-        # This is normal on non blocking connections - when there are no incoming data error is going to be raised
-        # Some operating systems will indicate that using AGAIN, and some using WOULDBLOCK error code
-        # We are going to check for both - if one of them - that's expected, means no incoming data, continue as normal
-        # If we got different error code - something happened
-        if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-            print('Reading error : {}'.format(str(e)))
-            sys.exit()
+        except IOError as e:
+            # This is normal on non blocking connections - when there are no incoming data error is going to be raised
+            # Some operating systems will indicate that using AGAIN, and some using WOULDBLOCK error code
+            # We are going to check for both - if one of them - that's expected, means no incoming data, continue as normal
+            # If we got different error code - something happened
+            if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                print('Reading error : {}'.format(str(e)))
+                sys.exit()
 
-        # We just did not receive anything
-        continue
+            # We just did not receive anything
+            continue
 
-    # except Exception as e:
-    #     # Any other exception - something happened, exit
-    #     print('Reading error: '.format(str(e)))
-    #     sys.exit()
+        # except Exception as e:
+        #     # Any other exception - something happened, exit
+        #     print('Reading error: '.format(str(e)))
+        #     sys.exit()
