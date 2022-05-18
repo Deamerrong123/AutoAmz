@@ -40,10 +40,8 @@ class AutoAmaz(object):
 
         # navigate to Gift cards page
         self.driver.find_element(By.PARTIAL_LINK_TEXT,"balance").click()
-
         # Then, redeem
-        self.driver.find_element(By.PARTIAL_LINK_TEXT,"redeem").click()
-
+        self.driver.find_element(By.LINK_TEXT,"Redeem a Gift Card").click()
         # once we get the code, paste on the Entry bar.
         # and Click "Apply"
         ## 

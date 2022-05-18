@@ -43,7 +43,7 @@ def uploading_PNG(client,code):
                     file_data = f.read(BUFFER_SIZE)
             # once the image been successully transmited, we tell the 
             # server it is done.
-            client_socket.send(b'%IMAGE_COMPLETE%')
+            client.send(b'%IMAGE_COMPLETE%')
 
             return True
 
@@ -59,8 +59,6 @@ if __name__ == '__main__':
     IP = str(input("Enter the TCP IP address: "))
     PORT = int(input("Enter the PORT number: "))
 
-    ## Turn on the driver for Amaz,
-    driver = AutoAmaz.AutoAmaz()
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((IP, PORT))
@@ -71,6 +69,9 @@ if __name__ == '__main__':
     first_conn = client_socket.recv(1024)
     if first_conn:
         print(first_conn.decode('utf-8'))
+
+    ## Turn on the driver for Amaz,
+    driver = AutoAmaz.AutoAmaz()
 
     # below is dealing with recieving code from SERVER, send the code to driver on Amaz,
     # clip screenshot and send this PNG file back to SERVER.

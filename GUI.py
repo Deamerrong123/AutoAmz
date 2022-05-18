@@ -145,6 +145,7 @@ class App(object):
                         print("Start reciving image... \n")
                         file_name = CliendSock.recv(1024)
                         file_name = file_name.decode('utf-8')
+                        print(f'{file_name}')
 
                         if file_name != 'error':
 
