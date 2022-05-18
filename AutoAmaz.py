@@ -12,7 +12,9 @@ from selenium.webdriver.chrome.options import Options
 ## CONSTANT
 URL = 'https://www.amazon.com/'
 FILE = os.path.join(os.getcwd(),'LOGIN.json')
-DRIVER_PATH = os.path.join('edgedriver_linux64','msedgedriver')
+# DRIVER_PATH = os.path.join('edgedriver_linux64','msedgedriver')
+DRIVER_PATH = os.path.join('edgedriver_win64','msedgedriver.exe')
+
 
 ## public method
 # LOGIN.json contains the passward and email for amazon account.
