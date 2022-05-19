@@ -49,6 +49,19 @@ class AutoAmaz(object):
 
         # When 'id = alertRedemptionSuccess' appear, clip 'class = a-alert-heading'
         # and driver.save_screenshot()
+        element = self.wait.until(EC.presence_of_elements_located((By.ID,'gc-redemption-form-heading')))
+
+
+    def _is_read(self):
+        try:
+            element = self.wait.until(EC.presence_of_elements_located((By.ID,'gc-redemption-form-heading')))
+        
+        except NoSuchElementException:
+        
+            return False
+
+        return True
+
     def login_page(self):
         # we need to deal with the situation
         # once we naviated to login-page

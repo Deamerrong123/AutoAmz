@@ -34,10 +34,7 @@ class App(object):
 
         # bool obj
         self.Gui_done = False
-        self.running = True
-        self.recieve_mode = False
-
-
+        self.running = True        
         self.Gui()
 
 

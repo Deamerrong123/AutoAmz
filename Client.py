@@ -73,6 +73,9 @@ if __name__ == '__main__':
     ## Turn on the driver for Amaz,
     driver = AutoAmaz.AutoAmaz()
 
+    ## Once the AutoAmaz's driver get ready, signal SERVER to enable Entry text.
+    client_socket.send(bytes('%READY%','utf-8'))
+
     # below is dealing with recieving code from SERVER, send the code to driver on Amaz,
     # clip screenshot and send this PNG file back to SERVER.
     while True:
