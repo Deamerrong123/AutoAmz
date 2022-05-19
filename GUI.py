@@ -43,7 +43,7 @@ class App(object):
 
 
     def conncet(self):
-        print("We are seeking for connection with THIS Server")
+        print("We are seeking for connection with THIS SERVER...")
         try:
             # we only need to connect to one device
             clientsocket, address = self.server.accept()
