@@ -45,10 +45,9 @@ def uploading_PNG(client,code):
             # server it is done.
             client.send(b'%IMAGE_COMPLETE%')
 
-            return True
 
         # if we cannot locate the file, tell the server and stop sending.
-        client.send(bytes('error','utf-8'))
+        client.send(bytes('%error%','utf-8'))
         return False
 ''''''
 
@@ -94,7 +93,7 @@ if __name__ == '__main__':
                     print(CODE)
                     # then working on AutoAmz.
                     driver.redeem_gift_card(CODE,TODAY_PATH)
-                    # once it is done.
+                    # once it is done. Tell the SERVER to preparing reciving img.
                     client_socket.send(b'%DONE%')
                     uploading_PNG(client_socket,CODE)
 

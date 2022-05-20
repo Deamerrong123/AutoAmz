@@ -12,7 +12,9 @@ from selenium.webdriver.chrome.options import Options
 ## CONSTANT
 URL = 'https://www.amazon.com/'
 FILE = os.path.join(os.getcwd(),'LOGIN.json')
-DRIVER_PATH = os.path.join('edgedriver_linux64','msedgedriver')
+# DRIVER_PATH = os.path.join('edgedriver_linux64','msedgedriver')
+DRIVER_PATH = os.path.join('utility','edgedriver_win64','msedgedriver.exe')
+
 
 ## public method
 # LOGIN.json contains the passward and email for amazon account.
@@ -49,7 +51,7 @@ class AutoAmaz(object):
 
         # When 'id = alertRedemptionSuccess' appear, clip 'class = a-alert-heading'
         # and driver.save_screenshot()
-        element = self.wait.until(EC.presence_of_elements_located((By.ID,'gc-redemption-form-heading')))
+        # element = self.wait.until(EC.presence_of_elements_located((By.ID,'gc-redemption-form-heading')))
 
 
     def _is_read(self):
@@ -94,6 +96,7 @@ class AutoAmaz(object):
         try:
             if self.driver.find_element(By.ID,'gc-redemption-apply-button').is_enabled():
                 claim_code = self.driver.find_element(By.NAME,'claimCode')
+                claim_code.clear() # clean the last time entied
                 # paste the code on the redemption-input, and apply.
                 claim_code.send_keys(code)
                 #claim_code.send_keys(Keys.ENTER)
@@ -109,3 +112,6 @@ class AutoAmaz(object):
             ## what ever that happen, take a screenshop.
             file_path_name = os.path.join(PATH,f'{code}.png')
             self.driver.save_screenshot(file_path_name)
+
+if __name__ == '__main__':
+    test = AutoAmaz()

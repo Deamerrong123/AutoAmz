@@ -36,6 +36,7 @@ class App(object):
         self.Gui_done = False
         self.running = True
         self.ready = False      
+
         self.Gui()
 
 
@@ -131,7 +132,6 @@ class App(object):
         except:
             print("ERROR -> handle_message")
             exit(1)
-        return True
 
     def recieve_message(self,CliendSock):
             while self.running:
@@ -183,12 +183,12 @@ class App(object):
         if len(CODE) > 4:
 
             Client = self.Clients[-1]
-            if self.handle_message(Client,CODE):
-                # time.sleep(5)
-                # once handle_message is COMPLETE, the desired png should be appear.
-                for file_name in os.listdir(today_path):
-                     if CODE in file_name:
-                         self.updata_image(file_name)
+            self.handle_message(Client,CODE)
+            # Once we complete download img, display it on the Canvas win.
+            print("Display ... \n")
+            for file_name in os.listdir(today_path):
+                 if CODE in file_name:
+                    self.updata_image(file_name)
 
 
 
@@ -228,10 +228,10 @@ class App(object):
         file_name = os.path.join(today_path,file_name)
 
         #Load an image in the script
-        img= Image.open(file_name)
+        img = Image.open(file_name)
 
         #Resize the Image using resize method
-        resized_image= img.resize((1000,500), Image.ANTIALIAS)
+        resized_image= img.resize((500,500), Image.ANTIALIAS)
         new_image= ImageTk.PhotoImage(resized_image)
 
         ## put it up to the _Can2
