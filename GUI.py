@@ -34,7 +34,8 @@ class App(object):
 
         # bool obj
         self.Gui_done = False
-        self.running = True        
+        self.running = True
+        self.ready = False      
         self.Gui()
 
 
@@ -161,6 +162,8 @@ class App(object):
                             img.save(file_name, format ='PNG')
                         print("Image Complete\n")
                         self.running = False # kill this thread (reciving)
+                    elif msg == b'%READY':
+                        pass
 
                 except Exception as e:
                     print("ERROR -> recieve_message")
