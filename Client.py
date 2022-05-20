@@ -48,7 +48,6 @@ def uploading_PNG(client,code):
 
         # if we cannot locate the file, tell the server and stop sending.
         client.send(bytes('%error%','utf-8'))
-        return False
 ''''''
 
 if __name__ == '__main__':

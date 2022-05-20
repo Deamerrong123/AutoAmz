@@ -35,8 +35,6 @@ class App(object):
         # bool obj
         self.Gui_done = False
         self.running = True
-        self.ready = False      
-
         self.Gui()
 
 
@@ -103,7 +101,6 @@ class App(object):
         self._Can2.configure(bg = 'white')
         self._Can2.pack()
         '''
-
         self.Gui_done = True
         self.root.protocol("WM_DELETE_WINDOW",self.stop)
 
@@ -128,6 +125,7 @@ class App(object):
             self.Recieving = threading.Thread(target = self.recieve_message,
                                               args=(CliendSock,))
             self.Recieving.start()
+            print("Should be Display...")
 
         except:
             print("ERROR -> handle_message")
@@ -182,12 +180,17 @@ class App(object):
         CODE = self._code.get()
         if len(CODE) > 4:
 
+            self._Can1.delete("all") # clear the field for displaying image.
+
             Client = self.Clients[-1]
-            self.handle_message(Client,CODE)
+            self.handle_message(Client,CODE) # waiting for img come back.
+
             # Once we complete download img, display it on the Canvas win.
             print("Display ... \n")
+
+            # once handle_message is COMPLETE, the desired png should be appear.
             for file_name in os.listdir(today_path):
-                 if CODE in file_name:
+                if CODE in file_name:
                     self.updata_image(file_name)
 
 
@@ -197,44 +200,15 @@ class App(object):
         1. make sure the dir is not empty.
         2. pick the correct image from the dir and paste it on the right side
         '''
-        '''
-        if "successfully" in file_name:
-            file_name = os.path.join(today_path,file_name)
 
-            #Load an image in the script
-            img= Image.open(file_name)
-
-            #Resize the Image using resize method
-            resized_image= img.resize((500,500), Image.ANTIALIAS)
-            new_image= ImageTk.PhotoImage(resized_image)
-
-            ## put it up to the _Can2
-            self._Can2.create_image(0,0, anchor=tkinter.NW, image = new_image)
-            self._Can2.image = new_image
-
-        else:
-            file_name = os.path.join(today_path,file_name)
-            #Load an image in the script
-            img= Image.open(file_name)
-
-            #Resize the Image using resize method
-            resized_image= img.resize((500,500), Image.ANTIALIAS)
-            new_image= ImageTk.PhotoImage(resized_image)
-
-            ## put it up to the _Can2
-            self._Can1.create_image(0,0, anchor=tkinter.NW, image = new_image)
-            self._Can1.image = new_image
-        '''
         file_name = os.path.join(today_path,file_name)
 
         #Load an image in the script
         img = Image.open(file_name)
 
         #Resize the Image using resize method
-        resized_image= img.resize((500,500), Image.ANTIALIAS)
+        resized_image= img.resize((1000,500), Image.ANTIALIAS)
         new_image= ImageTk.PhotoImage(resized_image)
-
-        ## put it up to the _Can2
         self._Can1.create_image(0,0, anchor=tkinter.NW, image = new_image)
         self._Can1.image = new_image
 
