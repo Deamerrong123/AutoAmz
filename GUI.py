@@ -35,9 +35,6 @@ class App(object):
         # bool obj
         self.Gui_done = False
         self.running = True
-        self.recieve_mode = False
-
-
         self.Gui()
 
 
@@ -84,20 +81,9 @@ class App(object):
         # create bottom framework
         self._down = ttk.Frame(self.root)
         self._down.grid(row = 1, column=0)
-
-        l_win = PanedWindow(self._down,bg = 'light pink',borderwidth = 10)
-        r_win = PanedWindow(self._down, bg = 'light green',borderwidth = 10)
-        l_win.pack(side = tkinter.LEFT)
-        r_win.pack(side = tkinter.RIGHT)
-
-        # create two Canvas win, where for displaying recieved imagess
-        self._Can1 = Canvas(l_win,width = 500,height = 500)
-        self._Can1.configure(bg = 'white')
+        self._Can1 = Canvas(self._down,width = 1000,height = 500)
+        self._Can1.configure(bg = 'white',borderwidth = 20)
         self._Can1.pack()
-
-        self._Can2 = Canvas(r_win,width = 500,height=500)
-        self._Can2.configure(bg = 'white')
-        self._Can2.pack()
 
         self.Gui_done = True
         self.root.protocol("WM_DELETE_WINDOW",self.stop)
@@ -173,14 +159,14 @@ class App(object):
         CODE = self._code.get()
         if len(CODE) > 4:
 
-            Client = self.Clients[-1]
-            if self.handle_message(Client,CODE):
-                # time.sleep(5)
-                # once handle_message is COMPLETE, the desired png should be appear.
-                # for file_name in os.listdir(today_path):
-                #     if CODE in file_name:
-                #         self.updata_image(file_name)
-                pass
+            self._Can1.delete("all")
+            # Client = self.Clients[-1]
+            # self.handle_message(Client,CODE):
+            # once handle_message is COMPLETE, the desired png should be appear.
+
+            for file_name in os.listdir(today_path):
+                if CODE in file_name:
+                    self.updata_image(file_name)
 
 
 
@@ -189,33 +175,18 @@ class App(object):
         1. make sure the dir is not empty.
         2. pick the correct image from the dir and paste it on the right side
         '''
-        
-        if "successfully" in file_name:
-            file_name = os.path.join(today_path,file_name)
 
-            #Load an image in the script
-            img= Image.open(file_name)
+        file_name = os.path.join(today_path,file_name)
+        #Load an image in the script
+        img= Image.open(file_name)
 
-            #Resize the Image using resize method
-            resized_image= img.resize((500,500), Image.ANTIALIAS)
-            new_image= ImageTk.PhotoImage(resized_image)
+        #Resize the Image using resize method
+        resized_image= img.resize((1000,500), Image.ANTIALIAS)
+        new_image= ImageTk.PhotoImage(resized_image)
 
-            ## put it up to the _Can2
-            self._Can2.create_image(0,0, anchor=tkinter.NW, image = new_image)
-            self._Can2.image = new_image
-
-        else:
-            file_name = os.path.join(today_path,file_name)
-            #Load an image in the script
-            img= Image.open(file_name)
-
-            #Resize the Image using resize method
-            resized_image= img.resize((500,500), Image.ANTIALIAS)
-            new_image= ImageTk.PhotoImage(resized_image)
-
-            ## put it up to the _Can2
-            self._Can1.create_image(0,0, anchor=tkinter.NW, image = new_image)
-            self._Can1.image = new_image
+        ## put it up to the _Can1
+        self._Can1.create_image(0,0, anchor=tkinter.NW, image = new_image)
+        self._Can1.image = new_image
 
 
     def clear(self):
