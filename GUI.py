@@ -137,12 +137,12 @@ class App(object):
                 print(msg.decode('utf-8'))
 
                 if msg == b'%DONE%':
-                    print("Start reciving image... \n")
                     fname = CliendSock.recv(1024)
                     file_name = fname.decode('utf-8')
                     print(file_name)
 
                     if file_name != 'error':
+                        print("Start reciving image... \n")
 
                         file_stream = io.BytesIO()
                         recv_data = CliendSock.recv(BUFFER_SIZE)

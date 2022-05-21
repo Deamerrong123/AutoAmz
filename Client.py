@@ -34,7 +34,7 @@ def uploading_PNG(client,code):
             file = os.path.join(TODAY_PATH,file_name)
             print(file_name)
             file_name = bytes(file_name,'utf-8')
-            print(file_name)
+            # print(file_name)
             client.send(file_name) # send the file_name first
             # then packing the file into bytes and sent.
             with open(file,'rb') as f:
