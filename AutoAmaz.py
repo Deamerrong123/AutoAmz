@@ -28,8 +28,8 @@ class AutoAmaz(object):
 
     def __init__ (self):
         self.driver = webdriver.Edge(DRIVER_PATH)
-        self.wait = WebDriverWait(self.driver,300)
-        self.driver.implicitly_wait(6)
+        self.wait = WebDriverWait(self.driver,500)
+        self.driver.implicitly_wait(10)
         self.driver.get(URL)
 
         # activate the log-in page

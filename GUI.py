@@ -133,42 +133,39 @@ class App(object):
 
     def recieve_message(self,CliendSock):
             while self.running:
-                try:
-                    msg = CliendSock.recv(1024)
-                    print(msg.decode('utf-8\n\n'))
+                msg = CliendSock.recv(1024)
+                print(msg.decode('utf-8'))
 
-                    if msg == b'%DONE%':
-                        print("Start reciving image... \n")
-                        file_name = CliendSock.recv(1024)
-                        file_name = file_name.decode('utf-8')
-                        print(f'{file_name}')
+                if msg == b'%DONE%':
+                    print("Start reciving image... \n")
+                    fname = CliendSock.recv(1024)
+                    file_name = fname.decode('utf-8')
+                    print(file_name)
 
-                        if file_name != 'error':
+                    if file_name != 'error':
 
-                            file_stream = io.BytesIO()
+                        file_stream = io.BytesIO()
+                        recv_data = CliendSock.recv(BUFFER_SIZE)
+
+                        while recv_data:
+                            file_stream.write(recv_data)
                             recv_data = CliendSock.recv(BUFFER_SIZE)
 
-                            while recv_data:
-                                file_stream.write(recv_data)
-                                recv_data = CliendSock.recv(BUFFER_SIZE)
+                            if recv_data == b'%IMAGE_COMPLETE%':
+                                break # exit the 'inner' while loop
 
-                                if recv_data == b'%IMAGE_COMPLETE%':
-                                    break # exit the 'inner' while loop
+                        img = Image.open(file_stream)
+                        file_name = os.path.join(today_path,file_name)
+                        img.save(file_name, format ='PNG')
+                    print("Image Complete\n")
+                    self.running = False # kill this thread (reciving)
 
-                            img = Image.open(file_stream)
-                            file_name = os.path.join(today_path,file_name)
-                            img.save(file_name, format ='PNG')
-                        print("Image Complete\n")
-                        self.running = False # kill this thread (reciving)
-                    elif msg == b'%READY':
-                        pass
+                print("We are still reciving message")
 
-                except Exception as e:
-                    print("ERROR -> recieve_message")
-                    print(f'{str(e)}')
-                    self.running = False
-
-            return True
+                # except Exception as e:
+                #     print("ERROR -> recieve_message")
+                #     print(f'{str(e)}')
+                #     self.running = False
 
     def submit(self):
         '''

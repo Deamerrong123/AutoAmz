@@ -33,7 +33,9 @@ def uploading_PNG(client,code):
         if code in file_name:
             file = os.path.join(TODAY_PATH,file_name)
             print(file_name)
-            client.send(bytes(file_name,'utf-8')) # send the file_name first
+            file_name = bytes(file_name,'utf-8')
+            print(file_name)
+            client.send(file_name) # send the file_name first
             # then packing the file into bytes and sent.
             with open(file,'rb') as f:
                 file_data = f.read(BUFFER_SIZE)
@@ -44,10 +46,13 @@ def uploading_PNG(client,code):
             # once the image been successully transmited, we tell the 
             # server it is done.
             client.send(b'%IMAGE_COMPLETE%')
+            return True
 
 
         # if we cannot locate the file, tell the server and stop sending.
-        client.send(bytes('%error%','utf-8'))
+    client.send(bytes('%error%','utf-8'))
+    return False
+
 ''''''
 
 if __name__ == '__main__':
