@@ -9,6 +9,7 @@ from datetime import datetime
 import os
 import sys
 import AutoAmaz
+from time import sleep
 
 ## CONSTANT
 HEADER_LENGTH = 10
@@ -19,6 +20,12 @@ TODAY = datetime.today()
 TODAY_PATH = f'Client_{TODAY.month}_{TODAY.day}'
 if not os.path.isdir(TODAY_PATH):
     os.mkdir(TODAY_PATH)
+
+# Create the working dir for TODAY CLIENT
+TODAY = datetime.today()
+today_path = f'Client_{TODAY.month}_{TODAY.day}'
+if not os.path.isdir(today_path):
+    os.mkdir(today_path)
 
 ''' def functions on below;
 '''
@@ -34,9 +41,10 @@ def uploading_PNG(client,code):
             file = os.path.join(TODAY_PATH,file_name)
             print(file_name)
             file_name = bytes(file_name,'utf-8')
-            # print(file_name)
+
             client.send(file_name) # send the file_name first
             # then packing the file into bytes and sent.
+            sleep(1)
             with open(file,'rb') as f:
                 file_data = f.read(BUFFER_SIZE)
 
@@ -45,6 +53,8 @@ def uploading_PNG(client,code):
                     file_data = f.read(BUFFER_SIZE)
             # once the image been successully transmited, we tell the 
             # server it is done.
+
+
             client.send(b'%IMAGE_COMPLETE%')
             return True
 
@@ -99,6 +109,7 @@ if __name__ == '__main__':
                     driver.redeem_gift_card(CODE,TODAY_PATH)
                     # once it is done. Tell the SERVER to preparing reciving img.
                     client_socket.send(b'%DONE%')
+                    sleep(1)
                     uploading_PNG(client_socket,CODE)
 
 
@@ -114,7 +125,7 @@ if __name__ == '__main__':
             # We just did not receive anything
             continue
 
-        # except Exception as e:
-        #     # Any other exception - something happened, exit
-        #     print('Reading error: '.format(str(e)))
-        #     sys.exit()
+        except Exception as e:
+            # Any other exception - something happened, exit
+            print('Reading error: '.format(str(e)))
+            sys.exit()

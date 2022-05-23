@@ -51,6 +51,11 @@ class App(object):
             msg = f"{len(msg):<{HEADERSIZE}}"+msg
             clientsocket.send(bytes(msg,"utf-8"))
 
+        except KeyboardInterrupt:
+            self.server.close()
+            self.root.destroy()
+
+
         except Exception as e:
             # self.server.close()
             # # self.root.destroy()
@@ -125,47 +130,55 @@ class App(object):
             self.Recieving = threading.Thread(target = self.recieve_message,
                                               args=(CliendSock,))
             self.Recieving.start()
-            print("Should be Display...")
+            self.Recieving.join() # waiting for reciving job done.
 
         except:
-            print("ERROR -> handle_message")
+            print("ERROR -> handle_message()")
             exit(1)
 
     def recieve_message(self,CliendSock):
             while self.running:
-                msg = CliendSock.recv(1024)
-                print(msg.decode('utf-8'))
+                try:
 
-                if msg == b'%DONE%':
-                    fname = CliendSock.recv(1024)
-                    file_name = fname.decode('utf-8')
-                    print(file_name)
+                    msg = CliendSock.recv(1024)
+                    print(f'{msg}')
 
-                    if file_name != 'error':
-                        print("Start reciving image... \n")
+                    if msg == b'%DONE%':
+                        fname = CliendSock.recv(1024)
+                        file_name = fname.decode('utf-8')
+                        print(file_name)
 
-                        file_stream = io.BytesIO()
-                        recv_data = CliendSock.recv(BUFFER_SIZE)
+                        if fname == b'error': 
+                            print("This section is closed.")
+                            raise ValueError
 
-                        while recv_data:
-                            file_stream.write(recv_data)
+                        else:
+                            file_stream = io.BytesIO()
                             recv_data = CliendSock.recv(BUFFER_SIZE)
 
-                            if recv_data == b'%IMAGE_COMPLETE%':
-                                break # exit the 'inner' while loop
+                            while recv_data:
+                                file_stream.write(recv_data)
+                                recv_data = CliendSock.recv(BUFFER_SIZE)
 
-                        img = Image.open(file_stream)
-                        file_name = os.path.join(today_path,file_name)
-                        img.save(file_name, format ='PNG')
-                    print("Image Complete\n")
+                                if recv_data == b'%IMAGE_COMPLETE%':
+                                    break # exit the 'inner' while loop
+                        
+
+                            img = Image.open(file_stream)
+                            file_name = os.path.join(today_path,file_name)
+                            img.save(file_name, format ='PNG')
+                        print("Image Complete\n")
+                        raise ValueError
+
+                except ValueError:
+                    print("Want to terminate thread.")
+                    self.running = False
+                except Exception as ec:
+                    print("ERROR -> recieve_message()")
+                    print(str(ec))
+                
+                finally:   
                     self.running = False # kill this thread (reciving)
-
-                print("We are still reciving message")
-
-                # except Exception as e:
-                #     print("ERROR -> recieve_message")
-                #     print(f'{str(e)}')
-                #     self.running = False
 
     def submit(self):
         '''
@@ -184,30 +197,31 @@ class App(object):
 
             # Once we complete download img, display it on the Canvas win.
             print("Display ... \n")
+            
+            self.updata_image()
 
-            # once handle_message is COMPLETE, the desired png should be appear.
-            for file_name in os.listdir(today_path):
-                if CODE in file_name:
-                    self.updata_image(file_name)
-
-
-
-    def updata_image(self,file_name):
+    def updata_image(self):
         '''
         1. make sure the dir is not empty.
         2. pick the correct image from the dir and paste it on the right side
         '''
+        ## look through all files on the dir, check whether the desire img get download...
+        CODE = self._code.get()
 
-        file_name = os.path.join(today_path,file_name)
+        for file_name in os.listdir(today_path):
+                if CODE in file_name:
+                    file_name = os.path.join(today_path,file_name)
 
-        #Load an image in the script
-        img = Image.open(file_name)
+                    #Load an image in the script
+                    img = Image.open(file_name)
 
-        #Resize the Image using resize method
-        resized_image= img.resize((1000,500), Image.ANTIALIAS)
-        new_image= ImageTk.PhotoImage(resized_image)
-        self._Can1.create_image(0,0, anchor=tkinter.NW, image = new_image)
-        self._Can1.image = new_image
+                    print("almost there...")
+
+                    #Resize the Image using resize method
+                    resized_image= img.resize((1000,500), Image.ANTIALIAS)
+                    new_image= ImageTk.PhotoImage(resized_image)
+                    self._Can1.create_image(0,0, anchor=tkinter.NW, image = new_image)
+                    self._Can1.image = new_image
 
 
     def clear(self):

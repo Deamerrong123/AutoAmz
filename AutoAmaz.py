@@ -46,8 +46,6 @@ class AutoAmaz(object):
         self.driver.find_element(By.LINK_TEXT,"Redeem a Gift Card").click()
         # once we get the code, paste on the Entry bar.
         # and Click "Apply"
-        ## 
-        ##
 
         # When 'id = alertRedemptionSuccess' appear, clip 'class = a-alert-heading'
         # and driver.save_screenshot()
