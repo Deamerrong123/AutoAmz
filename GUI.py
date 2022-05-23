@@ -108,23 +108,30 @@ class App(object):
             # reciving message.
             self.Recieving = threading.Thread(target = self.recieve_message,args=(CliendSock,))
             self.Recieving.start()
+            self.Recieving.join()
 
         except:
-            print("ERROR -> handle_message")
+            print("ERROR -> handle_message()")
             exit(1)
 
     def recieve_message(self,CliendSock):
             while self.running:
                 try:
+                
                     msg = CliendSock.recv(1024)
-                    print(msg.decode('utf-8\n\n'))
+                    print(f'{msg}')
 
                     if msg == b'%DONE%':
                         print("Start reciving image... \n")
-                        file_name = CliendSock.recv(1024)
-                        file_name = file_name.decode('utf-8')
+                        fname = CliendSock.recv(1024) ## here is the file name
+                        print(fname)
+                        
 
-                        if file_name != 'error':
+                        if fname == b'error': 
+                            print("This section is closed.")
+                            raise ValueError
+
+                        else:
 
                             file_stream = io.BytesIO()
                             recv_data = CliendSock.recv(BUFFER_SIZE)
@@ -135,19 +142,24 @@ class App(object):
 
                                 if recv_data == b'%IMAGE_COMPLETE%':
                                     break # exit the 'inner' while loop
-
+                            file_name = fname.decode('utf-8') ## decode the b'' into string
+                            # print(file_name)
                             img = Image.open(file_stream)
                             file_name = os.path.join(today_path,file_name)
                             img.save(file_name, format ='PNG')
-                        print("Image Complete\n")
-                        self.running = False # kill this thread (reciving)
 
-                except Exception as e:
-                    print("ERROR -> recieve_message")
-                    print(f'{str(e)}')
+                            print("Image Complete\n")
+                            raise ValueError
+
+                except ValueError:
+                    print("Want to terminate thread.")
                     self.running = False
-
-            return True
+                except Exception as ec:
+                    print("ERROR -> recieve_message()")
+                    print(str(ec))
+                
+                finally:   
+                    self.running = False # kill this thread (reciving)
 
     def submit(self):
         '''
@@ -160,25 +172,26 @@ class App(object):
         if len(CODE) > 4:
 
             self._Can1.delete("all")
-            # Client = self.Clients[-1]
-            # self.handle_message(Client,CODE):
+            Client = self.Clients[-1]
+            self.handle_message(Client,CODE)
             # once handle_message is COMPLETE, the desired png should be appear.
+
+            print("something something...")
 
             for file_name in os.listdir(today_path):
                 if CODE in file_name:
                     self.updata_image(file_name)
-
-
 
     def updata_image(self,file_name):
         '''
         1. make sure the dir is not empty.
         2. pick the correct image from the dir and paste it on the right side
         '''
-
         file_name = os.path.join(today_path,file_name)
         #Load an image in the script
         img= Image.open(file_name)
+
+        print("almost there...")
 
         #Resize the Image using resize method
         resized_image= img.resize((1000,500), Image.ANTIALIAS)

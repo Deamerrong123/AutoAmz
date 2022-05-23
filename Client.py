@@ -8,10 +8,18 @@ import errno
 from datetime import datetime
 import os
 import sys
+from time import sleep
 
 ## CONSTANT
 HEADER_LENGTH = 10
 BUFFER_SIZE = 4096
+
+
+# Create the working dir for TODAY CLIENT
+TODAY = datetime.today()
+today_path = f'Client_{TODAY.month}_{TODAY.day}'
+if not os.path.isdir(today_path):
+    os.mkdir(today_path)
 
 # Once the server hosting using ngrok, we need the
 # ip address and the port. 
@@ -23,11 +31,7 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((IP, PORT))
 ##client_socket.setblocking(False)
 
-# Create the working dir for TODAY CLIENT
-TODAY = datetime.today()
-today_path = f'Client_{TODAY.month}_{TODAY.day}'
-if not os.path.isdir(today_path):
-    os.mkdir(today_path)
+
 
 ''' def functions on below;
 '''
@@ -42,8 +46,11 @@ def uploading_PNG(client,code):
         if code in file_name:
             file = os.path.join(today_path,file_name)
             print(file_name)
-            client.send(bytes(file_name,'utf-8')) # send the file_name first
+            file_name = bytes(file_name,'utf-8')
+            print(file_name)
+            client.send(file_name) # send the file_name first
             # then packing the file into bytes and sent.
+            sleep(1)
             with open(file,'rb') as f:
                 file_data = f.read(BUFFER_SIZE)
 
@@ -52,13 +59,14 @@ def uploading_PNG(client,code):
                     file_data = f.read(BUFFER_SIZE)
             # once the image been successully transmited, we tell the 
             # server it is done.
+            sleep(.5)
             client_socket.send(b'%IMAGE_COMPLETE%')
 
             return True
 
-        # if we cannot locate the file, tell the server and stop sending.
-        client.send(bytes('error','utf-8'))
-        return False
+    # if we cannot locate the file, tell the server and stop sending.
+    client.send(b'error')
+    return False
 ''''''
 
 first_conn = client_socket.recv(1024)
@@ -83,6 +91,7 @@ while True:
                 # sleep(3)
                 # once it is done.
                 client_socket.send(b'%DONE%')
+                sleep(1)
                 uploading_PNG(client_socket,CODE)
 
 
