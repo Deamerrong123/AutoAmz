@@ -39,7 +39,6 @@ if __name__ == '__main__':
 
 	## filter out those 'bad' seat.
 	DATA = DATA.loc[DATA['Section'] < 100] # just want those section that within 100.
-	
 	## Customs matplot
 	init_plot()
 
@@ -56,7 +55,3 @@ if __name__ == '__main__':
 	pp.set_title("Ticket Price Distribution")
 	pp.set_ylim([200,800])
 	plt.show()
-
-
-
-

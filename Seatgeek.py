@@ -11,7 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from collections import defaultdict
 
 URL = 'https://seatgeek.com/mayday-tickets/brooklyn-new-york-barclays-center-2022-11-19-8-pm/concert/r/5729854'
-DRIVER_PATH = os.path.join('utility','msedgedriver.exe')
+DRIVER_PATH = os.path.join('utility','edgedriver_linux64','msedgedriver')
 EMAIL = "deamerrong123@gmail.com"
 PASSWORD = "520QZrong!"
 SEARCHING = "MAYDAY"
@@ -68,7 +68,7 @@ if __name__ == '__main__':
                         k = k + 1
                         
                         # print(Seat.text)
-                        if (k% STARTING_POINT == 2):
+                        if (k% STARTING_POINT == 1):
                                 a.move_to_element(Seat).send_keys(Keys.PAGE_DOWN).perform()
                 except TimeoutException as exception:
                         print("Can't not locate elements")
